@@ -1,0 +1,103 @@
+/* gestioneVotiGiudici.css */
+.header-actions {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 2rem;
+    flex-wrap: wrap;
+    gap: 1rem;
+}
+
+.cards-container {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+.team-card {
+    padding: 1.5rem;
+}
+
+.team-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+}
+
+.team-header h2 {
+    margin: 0;
+    font-size: 1.25rem;
+    color: var(--primary-color, #2563eb);
+}
+
+.institute-badge {
+    background-color: #f3f4f6;
+    color: #4b5563;
+    padding: 0.25rem 0.75rem;
+    border-radius: 9999px;
+    font-size: 0.875rem;
+    font-weight: 500;
+}
+
+.votes-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 0.5rem;
+}
+
+.votes-table th, .votes-table td {
+    text-align: left;
+    padding: 0.75rem;
+    border-bottom: 1px solid rgba(0,0,0,0.05);
+}
+
+.votes-table th {
+    font-weight: 600;
+    color: #4b5563;
+    background-color: #f9fafb;
+}
+
+.delete-btn {
+    padding: 0.4rem 0.8rem;
+    font-size: 0.9rem;
+    border-color: #ef4444;
+    color: #ef4444;
+    background-color: transparent;
+    white-space: nowrap;
+    cursor: pointer;
+    border-radius: 8px;
+    border-style: solid;
+    border-width: 1px;
+}
+
+.delete-btn:hover {
+    background-color: #fef2f2;
+}
+
+.no-votes {
+    color: #6b7280;
+    font-style: italic;
+    padding: 0.5rem 0;
+}
+
+.alert {
+    padding: 1rem;
+    border-radius: 8px;
+    margin-bottom: 1.5rem;
+    font-weight: 500;
+}
+
+.alert-success {
+    background-color: #dcfce7;
+    color: #166534;
+    border: 1px solid #bbf7d0;
+}
+
+.alert-danger {
+    background-color: #fee2e2;
+    color: #991b1b;
+    border: 1px solid #fecaca;
+}

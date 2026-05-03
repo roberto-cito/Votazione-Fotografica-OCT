@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Gestione Voti Giudici - Admin</title>
+    <meta name="_csrf" th:content="${_csrf.token}"/>
+    <meta name="_csrf_header" th:content="${_csrf.headerName}"/>
+    <link rel="icon" type="image/ico" th:href="@{/photo/logo.png}">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" th:href="@{/css/wallPaper.css}">
+    <link rel="stylesheet" th:href="@{/css/responsive.css}">
+    <link rel="stylesheet" th:href="@{/css/gestioneVotiGiudici.css}">
+    <script src="https://cdn.jsdelivr.net/particles.js/2.0.0/particles.min.js"></script>
+    <script th:src="@{/js/gestioneVotiGiudici.js}" defer></script>
+</head>
+<body class="admin-home">
+<div id="particles-js" class="particles-container" aria-hidden="true"></div>
+
+<main class="container">
+    <div class="header-actions">
+        <h1 class="page-title">Gestione Voti Giudici</h1>
+        <a th:href="@{/admin}" class="btn secondary">Torna alla Home</a>
+    </div>
+
+    <!-- Alert messages -->
+    <div th:if="${votoRimosso}" class="alert alert-success">
+        Voto rimosso con successo.
+    </div>
+    <div th:if="${ErrorRemoveVoto}" class="alert alert-danger">
+        Errore: impossibile rimuovere il voto.
+    </div>
+
+    <div class="cards-container">
+        <!-- Iterate over Map entry: key is SquadraEntity, value is List<VotoEntity> -->
+        <article class="card team-card" th:each="entry : ${voti}">
+            <header class="team-header">
+                <h2 th:text="${entry.key.realName + ' (' + entry.key.squadra + ')'}">Nome Squadra (Username)</h2>
+                <span class="institute-badge" th:if="${entry.key.istituto != null and !entry.key.istituto.isEmpty()}" th:text="${entry.key.istituto}">Istituto</span>
+            </header>
+            
+            <div class="votes-container">
+                <table class="votes-table" th:if="${not #lists.isEmpty(entry.value)}">
+                    <thead>
+                        <tr>
+                            <th>Giudice (Username)</th>
+                            <th>Punteggio</th>
+                            <th style="text-align: right;">Azioni</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr th:each="voto : ${entry.value}">
+                            <td th:text="${voto.giudice}">Giudice1</td>
+                            <td th:text="${voto.punteggio}">10.0</td>
+                            <td style="text-align: right;">
+                                <form th:action="@{/admin/remove-voto-giudice}" method="post"
+                                      onsubmit="return confirm('Sei sicuro di voler rimuovere il voto di questo giudice per questa squadra? Questa azione è irreversibile.');"
+                                      style="margin: 0; display: inline-block;">
+                                    <input type="hidden" name="giudice" th:value="${voto.giudice}" />
+                                    <input type="hidden" name="squadra" th:value="${entry.key.squadra}" />
+                                    <button type="submit" class="btn delete-btn" aria-label="Rimuovi voto giudice">
+                                        Elimina Voto
+                                    </button>
+                                </form>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+                <p class="no-votes" th:if="${#lists.isEmpty(entry.value)}">Nessun voto ricevuto dai giudici finora.</p>
+            </div>
+        </article>
+    </div>
+</main>
+<footer style="text-align: center; margin-top: 20px; font-size: 0.9em; color: #555;">Made with ❤️ by <a href="https://github.com/RMChannel">Cito Roberto</a>     
+   V3.0</footer>
+</body>
+</html>

@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Sito in Attesa</title>
+    <link rel="icon" type="image/ico" th:href="@{/photo/logo.png}">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" th:href="@{/css/wallPaper.css}">
+    <link rel="stylesheet" th:href="@{/css/responsive.css}">
+    <script src="https://cdn.jsdelivr.net/particles.js/2.0.0/particles.min.js"></script>
+    <style>
+        .waiting-card {
+            text-align: center;
+            padding: 50px 40px;
+            background: rgba(255, 255, 255, 0.95) !important;
+            color: #333 !important;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+        }
+        .waiting-card h2 {
+            margin-bottom: 20px;
+            color: #2c3e50 !important;
+            font-weight: 700;
+        }
+        .waiting-card p {
+            font-size: 1.15em;
+            line-height: 1.7;
+            margin-bottom: 35px;
+            color: #555 !important;
+        }
+        .loader {
+            border: 4px solid rgba(0, 0, 0, 0.1);
+            border-radius: 50%;
+            border-top: 4px solid #3498db;
+            width: 50px;
+            height: 50px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 25px;
+            box-shadow: 0 0 15px rgba(52, 152, 219, 0.2);
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body class="squadra-home">
+<div id="particles-js" class="particles-container" aria-hidden="true"></div>
+<main class="container">
+    <header class="app-header">
+        <h1 class="page-title">Accesso Non Disponibile</h1>
+    </header>
+
+    <section class="grid one-column">
+        <article class="card waiting-card">
+            <div class="loader"></div>
+            <header>
+                <h2>Sito non ancora sbloccato</h2>
+            </header>
+            <p>
+                Gentile partecipante, la piattaforma non è ancora stata sbloccata dall'amministratore.
+                <br><br>
+                Rimani sintonizzato: appena il sito sarà pronto per l'upload o la votazione, 
+                verrai avvisato tempestivamente attraverso i nostri <strong>canali ufficiali</strong>.
+            </p>
+            <div class="actions">
+                <form th:action="@{/logout}" method="post">
+                    <button class="btn secondary" type="submit">Torna al Login</button>
+                    <input type="hidden" th:if="${_csrf != null}" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+                </form>
+            </div>
+        </article>
+    </section>
+</main>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        if (typeof particlesJS !== 'undefined') {
+            particlesJS("particles-js", {
+                particles: {
+                    number: { value: 80, density: { enable: true, value_area: 800 } },
+                    color: { value: "#ffffff" },
+                    shape: { type: "circle" },
+                    opacity: { value: 0.5, random: true },
+                    size: { value: 3, random: true },
+                    line_linked: {
+                        enable: true,
+                        distance: 150,
+                        color: "#ffffff",
+                        opacity: 0.4,
+                        width: 1
+                    },
+                    move: {
+                        enable: true,
+                        speed: 2,
+                        direction: "none",
+                        random: true,
+                        straight: false,
+                        out_mode: "out",
+                        bounce: false
+                    }
+                },
+                interactivity: {
+                    detect_on: "canvas",
+                    events: {
+                        onhover: { enable: true, mode: "grab" },
+                        onclick: { enable: true, mode: "push" }
+                    },
+                    modes: {
+                        grab: { distance: 140, line_linked: { opacity: 1 } },
+                        push: { particles_nb: 4 }
+                    }
+                }
+            });
+        }
+    });
+</script>
+<footer style="text-align: center; margin-top: 20px; font-size: 0.9em; color: #555;">
+    Made with ❤️ by <a href="https://github.com/RMChannel">Cito Roberto</a> V3.0
+</footer>
+</body>
+</html>

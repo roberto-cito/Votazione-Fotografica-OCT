@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <link rel="icon" type="image/ico" th:href="@{/photo/logo.png}">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>Votazione Fotografia - Giudice</title>
+    <script src="https://cdn.jsdelivr.net/particles.js/2.0.0/particles.min.js"></script>
+    <link rel="stylesheet" th:href="@{/css/wallPaper.css}">
+    <link rel="stylesheet" th:href="@{/css/responsive.css}">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        body {
+            margin: 0;
+            font-family: 'Segoe UI', sans-serif;
+            background: linear-gradient(to bottom right, #3b82f6, #9333ea);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+        }
+
+        .vote-container {
+            background: #f9f9f9;
+            border-radius: 20px;
+            padding: 2rem;
+            max-width: 600px;
+            width: 90%;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .vote-container h2 {
+            font-weight: 700;
+            margin-bottom: 1.5rem;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-control, select {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            font-size: 1rem;
+            border: 1px solid #ccc;
+            border-radius: 12px;
+            box-sizing: border-box;
+        }
+
+        .photo-preview {
+            width: 100%;
+            max-height: 300px;
+            object-fit: contain;
+            border-radius: 12px;
+            margin-bottom: 1.5rem;
+            border: 1px solid #ccc;
+        }
+
+        .slider {
+            width: 100%;
+        }
+
+        .slider-value {
+            text-align: center;
+            margin-top: 0.5rem;
+            font-weight: bold;
+        }
+
+        .slider-steps {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 0.5rem;
+            font-size: 0.8rem;
+            color: #333;
+        }
+
+        .slider-steps span {
+            flex: 1;
+            text-align: center;
+        }
+
+        .btn-submit {
+            background: linear-gradient(to right, #06b6d4, #6366f1);
+            border: none;
+            color: white;
+            font-size: 1rem;
+            padding: 0.75rem 1.5rem;
+            border-radius: 30px;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+            transition: background 0.3s ease;
+        }
+
+        .btn-submit:hover {
+            background: linear-gradient(to right, #0891b2, #4f46e5);
+        }
+
+        .particles-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            overflow: hidden;
+            background-color: #4cc9f0;
+        }
+
+        .history-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 1rem;
+        }
+
+        .history-table th, .history-table td {
+            border: 1px solid #ccc;
+            padding: 0.75rem;
+            text-align: center;
+        }
+
+        .history-table th {
+            background-color: #3b82f6;
+            color: white;
+        }
+    </style>
+</head>
+<body>
+
+<div class="vote-container">
+    <h2>Votazione Fotografia</h2>
+    <form id="voteForm" method="post" th:action="@{/giudice}">
+        <input type="hidden" id="squadra" name="squadra" th:value="${squadra.squadra}">
+
+        <div class="form-group">
+            <h3 th:text="${squadra.realName}">Nome Squadra</h3>
+            <img th:src="${squadra.path_foto}" alt="Foto Squadra" class="photo-preview">
+        </div>
+
+        <div class="form-group">
+            <label for="voto">Voto</label>
+            <input type="range" id="voto" name="voto" class="slider" min="0" max="5" step="0.5" value="2.5" oninput="aggiornaValoreVoto(this.value)">
+            <div class="slider-value" id="valoreVoto">2.5</div>
+            <div class="slider-steps">
+                <span>0</span><span>0.5</span><span>1</span><span>1.5</span><span>2</span><span>2.5</span><span>3</span><span>3.5</span><span>4</span><span>4.5</span><span>5</span>
+            </div>
+        </div>
+
+        <div class="form-group text-center">
+            <button type="submit" class="btn-submit"><i class="fas fa-paper-plane"></i> Invia Voto</button>
+        </div>
+    </form>
+    <form th:action="@{/logout}" method="post">
+        <button class="btn-submit" type="submit">Fai il logout</button>
+    </form>
+</div>
+
+<div id="particles-js" class="particles-container"></div>
+<footer style="text-align: center; margin-top: 20px; font-size: 0.9em; color: #555;">Made with ❤️ by <a href="https://github.com/RMChannel">Cito Roberto</a>     
+   V3.0</footer>
+
+<script th:inline="javascript">
+    function aggiornaValoreVoto(val) {
+        document.getElementById("valoreVoto").innerText = val;
+    }
+
+    document.addEventListener('DOMContentLoaded', function () {
+        if (typeof particlesJS !== 'undefined') {
+            particlesJS("particles-js", {
+                particles: {
+                    number: { value: 80, density: { enable: true, value_area: 800 } },
+                    color: { value: "#ffffff" },
+                    shape: { type: "circle" },
+                    opacity: { value: 0.5, random: true },
+                    size: { value: 3, random: true },
+                    line_linked: {
+                        enable: true,
+                        distance: 150,
+                        color: "#ffffff",
+                        opacity: 0.4,
+                        width: 1
+                    },
+                    move: {
+                        enable: true,
+                        speed: 2,
+                        direction: "none",
+                        random: true,
+                        straight: false,
+                        out_mode: "out",
+                        bounce: false
+                    }
+                },
+                interactivity: {
+                    detect_on: "canvas",
+                    events: {
+                        onhover: { enable: true, mode: "grab" },
+                        onclick: { enable: true, mode: "push" }
+                    },
+                    modes: {
+                        grab: { distance: 140, line_linked: { opacity: 1 } },
+                        push: { particles_nb: 4 }
+                    }
+                }
+            });
+        }
+    });
+</script>
+</body>
+</html>

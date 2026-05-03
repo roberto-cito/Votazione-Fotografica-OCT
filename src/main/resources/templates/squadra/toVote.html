@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <link rel="icon" type="image/ico" href="photo/logo.png">
+    <title>Votazione Fotografica - Avvisi</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <script src="https://cdn.jsdelivr.net/particles.js/2.0.0/particles.min.js"></script>
+    <link rel="stylesheet" href="css/wallPaper.css">
+    <link rel="stylesheet" href="css/responsive.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        body {
+            margin: 0;
+            font-family: 'Segoe UI', sans-serif;
+            background: linear-gradient(to bottom right, #3b82f6, #9333ea);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+        }
+
+        .message-container {
+            background: #f9f9f9;
+            border-radius: 20px;
+            padding: 2rem;
+            max-width: 600px;
+            width: 90%;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+            text-align: center;
+        }
+
+        .message-container h2 {
+            font-weight: 700;
+            margin-bottom: 1rem;
+            color: #333;
+        }
+
+        .message-container p {
+            font-size: 1.1rem;
+            margin-bottom: 1.2rem;
+            color: #555;
+            text-align: left;
+        }
+
+        .btn-home {
+            margin: 5px;
+            background: linear-gradient(to right, #06b6d4, #6366f1);
+            border: none;
+            color: white;
+            font-size: 1rem;
+            padding: 0.75rem 1.5rem;
+            border-radius: 30px;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+            text-decoration: none;
+        }
+
+        .btn-home:hover {
+            background: linear-gradient(to right, #0891b2, #4f46e5);
+        }
+
+        .particles-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            overflow: hidden;
+            background-color: #4cc9f0;
+        }
+    </style>
+</head>
+<body>
+
+<div class="message-container">
+    <h2>Avvisi Importanti sulla Votazione</h2>
+    <p>
+        • Ogni squadra potrà esprimere <b>un solo voto</b> per l’edizione corrente del concorso.<br><br>
+        • Ogni voto espresso assegnerà <b>un punto</b> alla fotografia selezionata.<br><br>
+        • Non sarà possibile votare la <b>propria fotografia</b> né una fotografia appartenente al <b>proprio istituto</b>.<br><br>
+        • È responsabilità della squadra assicurarsi di selezionare <b>la fotografia corretta</b> prima di confermare il voto.<br><br>
+        • <b>Lo staff non si assume responsabilità</b> in caso di errore nella selezione e conferma del voto da parte della squadra.
+    </p>
+
+    <div style="display: inline-flex">
+<form th:action="@{/logout}" method="post" style="margin: 0; padding: 0;">
+        <button type="submit" class="btn-home" style="font-family: inherit;">
+            <i class="fas"></i> Fai il logout
+        </button>
+    </form>
+    <a th:href="@{/votaFoto}" class="btn-home">
+            <i class="fas fa-arrow-right"></i> Continua...
+        </a>
+    </div>
+
+</div>
+<footer style="text-align: center; margin-top: 20px; font-size: 0.9em; color: #555;">Made with ❤️ by <a href="https://github.com/RMChannel">Cito Roberto</a>     
+   V3.0</footer>
+
+<div id="particles-js" class="particles-container"></div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        if (typeof particlesJS !== 'undefined') {
+            particlesJS("particles-js", {
+                particles: {
+                    number: { value: 80, density: { enable: true, value_area: 800 } },
+                    color: { value: "#ffffff" },
+                    shape: { type: "circle" },
+                    opacity: { value: 0.5, random: true },
+                    size: { value: 3, random: true },
+                    line_linked: {
+                        enable: true,
+                        distance: 150,
+                        color: "#ffffff",
+                        opacity: 0.4,
+                        width: 1
+                    },
+                    move: {
+                        enable: true,
+                        speed: 2,
+                        direction: "none",
+                        random: true,
+                        straight: false,
+                        out_mode: "out",
+                        bounce: false
+                    }
+                },
+                interactivity: {
+                    detect_on: "canvas",
+                    events: {
+                        onhover: { enable: true, mode: "grab" },
+                        onclick: { enable: true, mode: "push" }
+                    },
+                    modes: {
+                        grab: { distance: 140, line_linked: { opacity: 1 } },
+                        push: { particles_nb: 4 }
+                    }
+                }
+            });
+        }
+    });
+</script>
+
+</body>
+</html>

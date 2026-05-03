@@ -1,0 +1,309 @@
+/* Responsive CSS - Ottimizzazioni per dispositivi mobili */
+
+/* Regole generali per maggiore responsività su tutti i dispositivi */
+html {
+    scroll-behavior: smooth;
+}
+
+img {
+    max-width: 100%;
+    height: auto;
+}
+
+/* Media query per tablet */
+@media (max-width: 992px) {
+    .container {
+        width: 95%;
+        padding: 1rem 0;
+    }
+
+    h1 {
+        font-size: 2rem;
+    }
+
+    h2 {
+        font-size: 1.75rem;
+    }
+
+    .login-form {
+        padding: 1.75rem;
+    }
+
+    .vote-container {
+        max-width: 95%;
+    }
+}
+
+/* Media query per dispositivi mobili di medie dimensioni */
+@media (max-width: 768px) {
+    body {
+        font-size: 15px;
+    }
+
+    h1 {
+        font-size: 1.8rem;
+    }
+
+    h2 {
+        font-size: 1.5rem;
+        padding-bottom: 0.5rem;
+    }
+
+    h3 {
+        font-size: 1.3rem;
+    }
+
+    .card, .vote-card, .votes-preview {
+        padding: 1.5rem;
+    }
+
+    /* Miglioramento dell'usabilità dei form */
+    input, select, textarea, .btn {
+        padding: 0.8rem 1rem;
+        font-size: 16px; /* Previene lo zoom automatico su iOS */
+    }
+
+    .btn {
+        width: 100%; /* Bottoni a larghezza piena per una migliore area di tocco */
+    }
+
+    /* Miglioramento della visualizzazione dei controlli slider */
+    .slider-container {
+        margin-bottom: 2rem;
+    }
+
+    .slider-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.5rem;
+    }
+
+    /* Miglioramento navigazione */
+    .vote-navigation {
+        margin: 1rem 0;
+        gap: 0.5rem;
+    }
+
+    .team-display {
+        padding: 0.5rem 1rem;
+        font-size: 0.9rem;
+    }
+
+    /* Ottimizzazione delle tabelle */
+    table, th, td {
+        font-size: 14px;
+        padding: 0.75rem 0.5rem;
+    }
+}
+
+/* Media query per dispositivi mobili piccoli */
+@media (max-width: 576px) {
+    body {
+        font-size: 14px;
+    }
+
+    .container {
+        width: 100%;
+        padding: 1rem 0.5rem;
+    }
+
+    h1 {
+        font-size: 1.6rem;
+        margin-bottom: 1rem;
+    }
+
+    h2 {
+        font-size: 1.4rem;
+    }
+
+    h3 {
+        font-size: 1.2rem;
+    }
+
+    /* Adattamento cards */
+    .card, .vote-card, .votes-preview {
+        padding: 1.25rem;
+        margin-bottom: 1.5rem;
+    }
+
+    /* Ottimizzazione delle tabelle per mobile */
+    .table-responsive {
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+        margin-bottom: 1rem;
+    }
+
+    /* Miglioramento area di tocco per i controlli slider */
+    input[type="range"]::-webkit-slider-thumb {
+        width: 24px;
+        height: 24px;
+    }
+
+    input[type="range"]::-moz-range-thumb {
+        width: 24px;
+        height: 24px;
+    }
+
+    /* Miglioramento dei controls per votazioni */
+    .step-markers {
+        margin-top: 8px;
+    }
+
+    .slider-value {
+        min-width: 40px;
+        padding: 0.2rem 0.5rem;
+    }
+
+    /* Miglioramento dell'header */
+    .app-header {
+        padding: 1rem 0;
+        margin-bottom: 1.5rem;
+    }
+
+    .header-actions {
+        flex-direction: column;
+        gap: 0.75rem;
+        align-items: center;
+        margin-bottom: 1.5rem;
+    }
+
+    .logout-btn {
+        padding: 0.5rem 1rem;
+    }
+
+    /* Fix per visualizzazione password toggle */
+    .password-input-wrapper {
+        position: relative;
+    }
+
+    .password-toggle-btn {
+        top: 50%;
+    }
+
+    /* Ottimizzazione usabilità form */
+    .form-group {
+        margin-bottom: 1.25rem;
+    }
+
+    label {
+        margin-bottom: 0.4rem;
+    }
+}
+
+/* Media query per dispositivi molto piccoli */
+@media (max-width: 375px) {
+    body {
+        font-size: 13px;
+    }
+
+    .login-logo {
+        width: 90px;
+    }
+
+    h1 {
+        font-size: 1.4rem;
+    }
+
+    h2 {
+        font-size: 1.2rem;
+    }
+
+    .vote-navigation {
+        gap: 0.25rem;
+    }
+
+    .arrow-btn {
+        width: 40px;
+        height: 40px;
+        font-size: 1.2rem;
+    }
+
+    /* Ulteriore ottimizzazione di elementi UI */
+    .criteria-help {
+        font-size: 0.8rem;
+    }
+
+    .step-marker {
+        font-size: 0.7rem;
+    }
+
+    /* Riduzione spaziatura per ottimizzare spazio */
+    .card, .vote-card, .votes-preview {
+        padding: 1rem;
+    }
+
+    .form-group {
+        margin-bottom: 1rem;
+    }
+}
+
+/* Classi di utilità per responsività */
+.d-sm-none {
+    display: none;
+}
+
+@media (min-width: 576px) {
+    .d-sm-block {
+        display: block;
+    }
+
+    .d-sm-none {
+        display: none;
+    }
+}
+
+@media (min-width: 768px) {
+    .d-md-block {
+        display: block;
+    }
+
+    .d-md-none {
+        display: none;
+    }
+}
+
+/* Fix per il touchscreen */
+@media (hover: none) {
+    /* Miglior resa per dispositivi touch */
+    input[type="range"]::-webkit-slider-thumb {
+        width: 26px;
+        height: 26px;
+    }
+
+    input[type="range"]::-moz-range-thumb {
+        width: 26px;
+        height: 26px;
+    }
+
+    .btn:hover, .btn:active {
+        transform: none; /* Rimuove trasformazioni che possono causare problemi al touch */
+    }
+
+    /* Miglioramento accessibilità touch */
+    .card:hover, .vote-card:hover {
+        transform: none;
+    }
+}
+
+/* Migliorie pulsanti per dispositivi mobili */
+@media (max-width: 768px) {
+    .actions {
+        display: flex;
+        flex-direction: column;
+        gap: 0.75rem;
+        align-items: stretch;
+        margin-top: 1rem;
+    }
+
+    .actions a.btn,
+    .actions button.btn,
+    .actions .btn {
+        text-align: center;
+        width: auto;
+        display: block;
+        padding: 1rem 1.25rem;
+        font-size: 16px; /* evita zoom iOS */
+        min-height: 48px; /* target touch comodo */
+        border-radius: 12px;
+    }
+}

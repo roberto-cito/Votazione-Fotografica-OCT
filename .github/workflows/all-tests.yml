@@ -1,0 +1,238 @@
+name: All-Tests
+
+on:
+  push:
+    branches: [ "main", "master" ]
+  pull_request:
+    branches: [ "main", "master" ]
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      checks: write
+
+    services:
+      mysql:
+        image: mysql:8.0
+        env:
+          MYSQL_ROOT_PASSWORD: root
+          MYSQL_DATABASE: fotografia
+        ports:
+          - 3306:3306
+        options: --health-cmd="mysqladmin ping" --health-interval=10s --health-timeout=5s --health-retries=3
+
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+          cache: maven
+      
+      - name: Test RunningTest
+        env:
+          SPRING_DATASOURCE_URL: jdbc:mysql://localhost:3306/fotografia
+          SPRING_DATASOURCE_USERNAME: root
+          SPRING_DATASOURCE_PASSWORD: root
+          MAINTENANCE_PASSWORD: ${{ secrets.MAINTENANCE_PASSWORD }}
+        run: mvn -B test -Dtest=VotazioneFotografica.RunningTest
+
+      - name: Publish Test Report
+        uses: dorny/test-reporter@v1
+        if: always()
+        with:
+          name: Test Results (RunningTest)
+          path: target/surefire-reports/*.xml
+          reporter: java-junit
+          fail-on-error: false
+
+  Model-test:
+    needs: build-and-test
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      checks: write
+
+    services:
+      mysql:
+        image: mysql:8.0
+        env:
+          MYSQL_ROOT_PASSWORD: root
+          MYSQL_DATABASE: fotografia
+        ports:
+          - 3306:3306
+        options: --health-cmd="mysqladmin ping" --health-interval=10s --health-timeout=5s --health-retries=3
+
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+          cache: maven
+
+      - name: Test Model
+        env:
+          SPRING_DATASOURCE_URL: jdbc:mysql://localhost:3306/fotografia
+          SPRING_DATASOURCE_USERNAME: root
+          SPRING_DATASOURCE_PASSWORD: root
+        run: mvn -B test -Dtest=VotazioneFotografica.Model.**
+
+      - name: Publish Test Report
+        uses: dorny/test-reporter@v1
+        if: always()
+        with:
+          name: Test Results (Model)
+          path: target/surefire-reports/*.xml
+          reporter: java-junit
+          fail-on-error: false
+
+  Controller-test:
+    needs: build-and-test
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      checks: write
+
+    services:
+      mysql:
+        image: mysql:8.0
+        env:
+          MYSQL_ROOT_PASSWORD: root
+          MYSQL_DATABASE: fotografia
+        ports:
+          - 3306:3306
+        options: --health-cmd="mysqladmin ping" --health-interval=10s --health-timeout=5s --health-retries=3
+
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+          cache: maven
+
+      - name: Test Controller
+        env:
+          SPRING_DATASOURCE_URL: jdbc:mysql://localhost:3306/fotografia
+          SPRING_DATASOURCE_USERNAME: root
+          SPRING_DATASOURCE_PASSWORD: root
+        run: mvn -B test -Dtest=VotazioneFotografica.Controller.**
+
+      - name: Publish Test Report
+        uses: dorny/test-reporter@v1
+        if: always()
+        with:
+          name: Test Results (Controller)
+          path: target/surefire-reports/*.xml
+          reporter: java-junit
+          fail-on-error: false
+
+  E2E-test:
+    needs: build-and-test
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      checks: write
+
+    services:
+      mysql:
+        image: mysql:8.0
+        env:
+          MYSQL_ROOT_PASSWORD: root
+          MYSQL_DATABASE: fotografia
+        ports:
+          - 3306:3306
+        options: --health-cmd="mysqladmin ping" --health-interval=10s --health-timeout=5s --health-retries=3
+
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+          cache: maven
+
+      - name: Setup Chrome
+        uses: browser-actions/setup-chrome@v1
+        with:
+          chrome-version: stable
+
+      - name: Test E2E (SeleniumTest)
+        env:
+          SPRING_DATASOURCE_URL: jdbc:mysql://localhost:3306/fotografia
+          SPRING_DATASOURCE_USERNAME: root
+          SPRING_DATASOURCE_PASSWORD: root
+        run: mvn -B test -Dtest=VotazioneFotografica.Selenium.SeleniumTest
+
+      - name: Publish Test Report
+        uses: dorny/test-reporter@v1
+        if: always()
+        with:
+          name: Test Results (E2E)
+          path: target/surefire-reports/*.xml
+          reporter: java-junit
+          fail-on-error: false
+
+  build-docker-image:
+    needs: [build-and-test, Model-test, Controller-test, E2E-test]
+    runs-on: ubuntu-latest
+    if: false # Disabilitato: repository di pubblicazione/portfolio
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Log in to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+
+      - name: Build and push Docker image
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          push: true
+          tags: ${{ secrets.DOCKER_USERNAME }}/votazione-fotografica:latest
+          build-args: |
+            DB_URL=${{ secrets.DB_URL }}
+            DB_USER=${{ secrets.DB_USER }}
+            DB_PASS=${{ secrets.DB_PASS }}
+  deploy-to-server:
+    needs: build-docker-image
+    runs-on: ubuntu-latest
+    if: false # Disabilitato: repository di pubblicazione/portfolio
+
+    steps:
+      - name: Deploy via SSH
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.SERVER_IP }}
+          username: ${{ secrets.SERVER_USER }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          envs: DB_URL,DB_USER,DB_PASS,MAINTENANCE_PASSWORD
+          script: |
+            sudo kubectl create namespace votazione-fotografica --dry-run=client -o yaml | sudo kubectl apply -f -
+            
+            sudo kubectl create secret generic votazione-fotografica-secrets \
+              --namespace votazione-fotografica \
+              --from-literal=db-url="$DB_URL" \
+              --from-literal=db-user="$DB_USER" \
+              --from-literal=db-pass="$DB_PASS" \
+              --from-literal=maintenance-password="$MAINTENANCE_PASSWORD" \
+              --dry-run=client -o yaml | sudo kubectl apply -f -
+            
+            sudo kubectl apply -f ~/yaml/votazione-fotografica-workload.yaml
+            sudo kubectl apply -f ~/yaml/ingress-fotografia.yaml
+            sudo kubectl rollout restart deployment/votazione-fotografica-app -n votazione-fotografica
+        env:
+          DB_URL: "jdbc:mysql://mysql-service.votazione-fotografica:3306/fotografia?allowPublicKeyRetrieval=true&useSSL=false"
+          DB_USER: ${{ secrets.DB_USER }}
+          DB_PASS: ${{ secrets.DB_PASS }}
+          MAINTENANCE_PASSWORD: ${{ secrets.MAINTENANCE_PASSWORD }}

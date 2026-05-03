@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Admin - Home</title>
+    <link rel="icon" type="image/ico" th:href="@{/photo/logo.png}">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" th:href="@{/css/wallPaper.css}">
+    <link rel="stylesheet" th:href="@{/css/responsive.css}">
+    <script src="https://cdn.jsdelivr.net/particles.js/2.0.0/particles.min.js"></script>
+</head>
+<body class="admin-home">
+<div id="particles-js" class="particles-container" aria-hidden="true"></div>
+<main class="container">
+    <header class="app-header">
+        <h1 class="page-title" th:text="'Area Amministratore '+${utente}">Area Amministratore</h1>
+    </header>
+
+    <section class="grid three-columns" aria-label="Scorciatoie amministratore">
+        <!-- Sezione Voto -->
+        <article class="card" aria-labelledby="title-voto">
+            <header>
+                <h2 id="title-voto">Sezione Voto</h2>
+            </header>
+            <p>Gestisci e consulta le funzionalità di voto.</p>
+            <div class="actions">
+                <a class="btn primary" href="admin/vote" role="button" aria-label="Vai alla pagina Voto">Vai alla pagina Voto</a>
+            </div>
+        </article>
+
+        <!-- Sezione Utenti -->
+        <article class="card" aria-labelledby="title-users">
+            <header>
+                <h2 id="title-users">Sezione Utenti</h2>
+            </header>
+            <p>Gestisci gli utenti.</p>
+            <div class="actions">
+                <a class="btn primary" href="admin/manage-users" role="button" aria-label="Vai alla pagina di Gestione Utenti">Vai alla pagina di Gestione Utenti</a>
+            </div>
+        </article>
+
+        <!-- Sezione Giudici -->
+        <article class="card" aria-labelledby="title-giudici">
+            <header>
+                <h2 id="title-giudici">Sezione Giudici</h2>
+            </header>
+            <p>Gestisci i voti assegnati dai giudici alle squadre.</p>
+            <div class="actions">
+                <a class="btn primary" href="admin/gestione-giudici" role="button" aria-label="Vai alla pagina di Gestione Giudici">Vai ai Voti Giudici</a>
+            </div>
+        </article>
+
+        <!-- Sezione Modalità Utente -->
+        <article class="card" aria-labelledby="title-modalita">
+            <header>
+                <h2 id="title-modalita">Modalità Utente</h2>
+            </header>
+            <p>
+                Modalità attuale:
+                <strong th:if="${modalitaUtente == 0}">Bloccato</strong>
+                <strong th:if="${modalitaUtente == 1}">Upload foto sbloccato</strong>
+                <strong th:if="${modalitaUtente == 2}">Voto sbloccato</strong>
+            </p>
+            <form th:action="@{/admin/cambiaModalita}" method="post">
+                <div class="actions" style="display: flex; flex-direction: column; gap: 10px;">
+                    <select name="control" class="btn secondary" style="width: 100%; text-align: center; appearance: none; -webkit-appearance: none; cursor: pointer;" aria-label="Seleziona modalità">
+                        <option value="0" th:selected="${modalitaUtente == 0}">Bloccato</option>
+                        <option value="1" th:selected="${modalitaUtente == 1}">Upload foto sbloccato</option>
+                        <option value="2" th:selected="${modalitaUtente == 2}">Voto sbloccato</option>
+                    </select>
+                    <button class="btn primary" type="submit" id="toggleModeBtn" aria-label="Conferma modalità utente">
+                        Applica Modifiche
+                    </button>
+                </div>
+                <input type="hidden" th:if="${_csrf != null}" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+            </form>
+        </article>
+
+        <!-- Sezione Logout -->
+        <article class="card" aria-labelledby="title-logout">
+            <header>
+                <h2 id="title-logout">Logout</h2>
+            </header>
+            <p>Termina la sessione corrente in modo sicuro.</p>
+            <form th:action="@{/logout}" method="post">
+                <div class="actions">
+                    <button class="btn secondary" type="submit" aria-label="Esegui logout">Esci</button>
+                </div>
+                <input type="hidden" th:if="${_csrf != null}" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+            </form>
+        </article>
+    </section>
+</main>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        if (typeof particlesJS !== 'undefined') {
+            particlesJS("particles-js", {
+                particles: {
+                    number: { value: 80, density: { enable: true, value_area: 800 } },
+                    color: { value: "#ffffff" },
+                    shape: { type: "circle" },
+                    opacity: { value: 0.5, random: true },
+                    size: { value: 3, random: true },
+                    line_linked: {
+                        enable: true,
+                        distance: 150,
+                        color: "#ffffff",
+                        opacity: 0.4,
+                        width: 1
+                    },
+                    move: {
+                        enable: true,
+                        speed: 2,
+                        direction: "none",
+                        random: true,
+                        straight: false,
+                        out_mode: "out",
+                        bounce: false
+                    }
+                },
+                interactivity: {
+                    detect_on: "canvas",
+                    events: {
+                        onhover: { enable: true, mode: "grab" },
+                        onclick: { enable: true, mode: "push" }
+                    },
+                    modes: {
+                        grab: { distance: 140, line_linked: { opacity: 1 } },
+                        push: { particles_nb: 4 }
+                    }
+                }
+            });
+        }
+        });
+        </script>
+<footer style="text-align: center; margin-top: 20px; font-size: 0.9em; color: #555;">Made with ❤️ by <a href="https://github.com/RMChannel">Cito Roberto</a>     
+   V3.0</footer>
+
+        </body>
+        </html>

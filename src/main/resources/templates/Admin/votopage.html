@@ -1,0 +1,517 @@
+<!DOCTYPE html>
+<html lang="it" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <link rel="icon" type="image/ico" th:href="@{/photo/logo.png}">
+    <title>Admin Home</title>
+    <script src="https://cdn.jsdelivr.net/particles.js/2.0.0/particles.min.js"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        body {
+            margin: 0;
+            font-family: 'Segoe UI', sans-serif;
+            background: linear-gradient(to bottom right, #3b82f6, #9333ea);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+        }
+        .table-container {
+            background: #f9f9f9;
+            border-radius: 20px;
+            padding: 2rem;
+            max-width: 1100px;
+            width: 95%;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 1rem;
+        }
+        th, td {
+            padding: 0.75rem;
+            border-bottom: 1px solid #ddd;
+        }
+        th {
+            background: #6366f1;
+            color: white;
+        }
+        tr:last-child td {
+            border-bottom: none;
+        }
+        .btn-view {
+            background: linear-gradient(to right, #06b6d4, #6366f1);
+            border: none;
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            cursor: pointer;
+            transition: background 0.3s ease;
+        }
+        .btn-view:hover {
+            background: linear-gradient(to right, #0891b2, #4f46e5);
+        }
+        .particles-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            overflow: hidden;
+            background-color: #4cc9f0;
+        }
+        #filterInput, #sortSelect {
+            padding: 0.5rem;
+            border: 1px solid #ccc;
+            border-radius: 10px;
+            margin-bottom: 1rem;
+        }
+        #filterInput {
+            width: 60%;
+        }
+        #sortSelect {
+            margin-left: 1rem;
+        }
+    </style>
+</head>
+<body>
+
+<div class="table-container">
+    <h2>Gestione Votazione Fotografie</h2>
+
+    <!-- Punto bonus basato sui voti delle squadre -->
+    <div style="margin-bottom: 1rem; padding: 1rem; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius: 15px; color: white; box-shadow: 0 4px 15px rgba(0,0,0,0.1);" th:if="${not #lists.isEmpty(squadre)}">
+        <h3 style="margin: 0 0 1rem 0; text-align: center;">
+            <i class="fas fa-trophy" style="margin-right: 0.5rem; color: #ffd700;"></i>
+            Punto Bonus - Voti delle Squadre
+        </h3>
+            <div style="text-align: center; font-size: 1.1rem;">
+                <th:block th:if="${maxVotiRicevuti == 0}">
+                    <div style="background: rgba(255,255,255,0.2); padding: 1rem; border-radius: 10px;">
+                        <i class="fas fa-exclamation-triangle" style="margin-right: 0.5rem; color: #ffc107;"></i>
+                        <strong>Nessuna squadra riceve il punto bonus</strong>
+                        <br>
+                        <span style="font-size: 0.9rem; opacity: 0.8;">Nessun voto registrato dalle squadre</span>
+                    </div>
+                </th:block>
+
+                <th:block th:if="${maxVotiRicevuti > 0}">
+                        <th:block th:if="${conteggio == 1}">
+                            <!-- Una sola squadra vincitrice -->
+                            <div style="background: rgba(40, 167, 69, 0.3); padding: 1rem; border-radius: 10px; border: 2px solid #28a745;">
+                                <i class="fas fa-crown" style="margin-right: 0.5rem; color: #ffd700; font-size: 1.2em;"></i>
+                                <strong style="font-size: 1.3rem;">PUNTO BONUS ASSEGNATO!</strong>
+                                <br>
+                                <div style="margin-top: 1rem;">
+                                    <th:block th:each="squadra : ${squadre}" th:if="${squadra.getTotaleDaSquadre() == maxVotiRicevuti}">
+                                        <div style="font-size: 1.1rem;">
+                                            🏆 <strong th:text="${squadra.getRealname()}">Squadra</strong>
+                                        </div>
+                                        <div style="font-size: 0.9rem; opacity: 0.9; margin-top: 0.5rem;">
+                                            <span th:text="${squadra.getIstituto()}">Istituto</span> - 
+                                            <span th:text="${maxVotiRicevuti}">0</span> voti ricevuti
+                                        </div>
+                                    </th:block>
+                                </div>
+                            </div>
+                        </th:block>
+
+                        <th:block th:if="${conteggio > 1}">
+                            <!-- Pareggio tra più squadre -->
+                            <div style="background: rgba(255, 193, 7, 0.3); padding: 1rem; border-radius: 10px; border: 2px solid #ffc107;">
+                                <i class="fas fa-balance-scale" style="margin-right: 0.5rem; color: #ff6b6b; font-size: 1.2em;"></i>
+                                <strong style="font-size: 1.3rem; color: #ff6b6b;">PAREGGIO!</strong>
+                                <br>
+                                <span style="font-size: 1rem; margin-top: 0.5rem; display: inline-block;">
+                                    Punto bonus NON assegnato
+                                </span>
+                                <br>
+                                <div style="margin-top: 1rem;">
+                                    <strong>Squadre in pareggio con <span th:text="${maxVotiRicevuti}">0</span> voti:</strong>
+                                    <div style="margin-top: 0.5rem;">
+                                        <th:block th:each="squadra : ${squadre}" th:if="${squadra.getTotaleDaSquadre() == maxVotiRicevuti}">
+                                            <span style="display: inline-block; background: rgba(255,255,255,0.2); padding: 0.3rem 0.8rem; margin: 0.2rem; border-radius: 20px; font-size: 0.9rem;">
+                                                🤝 <span th:text="${squadra.getRealname()}">Squadra</span>
+                                            </span>
+                                        </th:block>
+                                    </div>
+                                </div>
+                            </div>
+                        </th:block>
+                    </th:block>
+                </th:block>
+            </div>
+    </div>
+
+    <!-- Filtri -->
+    <input type="text" id="filterInput" placeholder="Filtra per nome squadra...">
+    <select id="sortSelect">
+        <option value="">Ordina per...</option>
+        <option value="name">Nome Squadra</option>
+        <option value="votes">Numero Voti da Squadre</option>
+        <option value="somma">Media Giudici</option>
+    </select>
+
+    <!-- Pulsante Aggiornamento Automatico -->
+    <div style="margin-top: 1rem; text-align: center;">
+        <button id="autoRefreshBtn" class="btn-view" style="background: linear-gradient(to right, #10b981, #059669);">
+            <i class="fas fa-sync-alt"></i> Avvia Aggiornamento Automatico
+        </button>
+        <div id="refreshStatus" style="margin-top: 0.5rem; font-size: 0.9rem; color: #666;">
+            Aggiornamento automatico disattivato
+        </div>
+    </div>
+
+    <!-- Tabella -->
+    <table id="squadreTable">
+        <thead>
+        <tr>
+            <th>Nome Squadra</th>
+            <th>Istituto</th>
+            <th>Foto Caricata</th>
+            <th>Ha Votato</th>
+            <th>Numero Voti da squadre</th>
+            <!-- Colonne dinamiche per i giudici -->
+            <th th:each="giudice : ${giudici}" th:text="'Voto ' + ${giudice.getUsername()}">Voto Giudice</th>
+            <th>Media Giudici</th>
+            <th>Foto</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:each="squadra, squadraStat : ${squadre}">
+            <td th:text="${squadra.getRealname()}">Nome</td>
+            <td th:text="${squadra.getIstituto()}">Istituto</td>
+            <td th:text="${squadra.isHasUploaded()} ? 'Si' : 'No'">Foto</td>
+            <td th:text="${squadra.isHasVoted()} ? 'Si' : 'No'">Votato</td>
+            <td th:text="${squadra.getTotaleDaSquadre()}">Voti</td>
+            <!-- Voti dei giudici dinamici -->
+            <td th:each="giudice : ${giudici}">
+                <span th:text="${squadra.getVotiGiudici()[giudice.getUsername()] ?: 0}">0</span>
+            </td>
+            <td th:text="${#numbers.formatDecimal(squadra.getMediaGiudici(), 1, 2)}">Media</td>
+            <td>
+                <form th:if="${squadra.isHasUploaded()}"
+                      method="get" 
+                      th:action="@{/visualizzaFoto}"
+                      style="display:inline;">
+                    <input type="hidden" name="squadra" th:value="${squadra.getUsername()}">
+                    <button type="submit" class="btn-view">
+                        <i class="fas fa-image"></i> Vedi
+                    </button>
+                </form>
+                <span th:unless="${squadra.isHasUploaded()}">-</span>
+            </td>
+        </tr>
+        </tbody>
+    </table>
+</div>
+
+<div class="table-container" th:if="${not #lists.isEmpty(votiSquadre)}">
+    <h2>Cronologia Voti delle Squadre</h2>
+
+    <!-- Filtri per la sezione voti -->
+    <div style="margin-bottom: 1rem;">
+        <input type="text" id="filterVotiInput" placeholder="Filtra per squadra votante..." style="padding: 0.5rem; border: 1px solid #ccc; border-radius: 10px; width: 45%; margin-right: 1rem;">
+        <input type="text" id="filterVotateInput" placeholder="Filtra per squadra votata..." style="padding: 0.5rem; border: 1px solid #ccc; border-radius: 10px; width: 45%;">
+    </div>
+
+    <div style="margin-bottom: 1rem; font-size: 1.1rem; color: #555;">
+        <strong>Totale voti espressi: <span th:text="${#lists.size(votiSquadre)}">0</span></strong>
+    </div>
+
+    <table id="votiSquadreTable">
+        <thead>
+        <tr>
+            <th style="cursor: pointer;" onclick="sortVotiTable(0)">
+                Squadra Votante <i class="fas fa-sort" style="margin-left: 5px;"></i>
+            </th>
+            <th style="cursor: pointer;" onclick="sortVotiTable(1)">
+                Squadra Votata <i class="fas fa-sort" style="margin-left: 5px;"></i>
+            </th>
+            <th>Istituto Votante</th>
+            <th>Istituto Votata</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:each="voto : ${votiSquadre}">
+            <td>
+                <th:block th:each="squadra : ${squadre}" th:if="${squadra.getUsername() == voto.getSquadraVotante()}">
+                    <span th:text="${squadra.getRealname()}"></span>
+                </th:block>
+                <th:block th:unless="${#lists.contains(squadre.![username], voto.getSquadraVotante())}" th:text="${voto.getSquadraVotante()}"></th:block>
+            </td>
+            <td>
+                <th:block th:each="squadra : ${squadre}" th:if="${squadra.getUsername() == voto.getSquadraVotata()}">
+                    <span th:text="${squadra.getRealname()}"></span>
+                </th:block>
+                <th:block th:unless="${#lists.contains(squadre.![username], voto.getSquadraVotata())}" th:text="${voto.getSquadraVotata()}"></th:block>
+            </td>
+            <td>
+                <th:block th:each="squadra : ${squadre}" th:if="${squadra.getUsername() == voto.getSquadraVotante()}">
+                    <span th:text="${squadra.getIstituto()}"></span>
+                </th:block>
+                <th:block th:unless="${#lists.contains(squadre.![username], voto.getSquadraVotante())}" th:text="'N/D'"></th:block>
+            </td>
+            <td>
+                <th:block th:each="squadra : ${squadre}" th:if="${squadra.getUsername() == voto.getSquadraVotata()}">
+                    <span th:text="${squadra.getIstituto()}"></span>
+                </th:block>
+                <th:block th:unless="${#lists.contains(squadre.![username], voto.getSquadraVotata())}" th:text="'N/D'"></th:block>
+            </td>
+        </tr>
+        </tbody>
+    </table>
+
+    <!-- Statistiche aggiuntive -->
+    <div style="margin-top: 2rem; display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; text-align: left;">
+        <div style="background: #f0f8ff; padding: 1rem; border-radius: 10px; border-left: 4px solid #6366f1;">
+            <h4 style="margin: 0 0 0.5rem 0; color: #6366f1;">
+                <i class="fas fa-chart-bar"></i> Partecipazione al Voto
+            </h4>
+            <p style="margin: 0;">
+                <strong th:text="${#lists.size(votiSquadre)} + ' squadre su ' + ${#lists.size(squadre)} + ' hanno votato'">
+                    Statistiche partecipazione
+                </strong>
+            </p>
+            <p style="margin: 0.5rem 0 0 0; font-size: 0.9rem; color: #666;">
+                Percentuale partecipazione: 
+                <strong th:text="${#numbers.formatDecimal((#lists.size(votiSquadre) * 100.0) / #lists.size(squadre), 1, 1)} + '%'">
+                    0%
+                </strong>
+            </p>
+        </div>
+
+        <div style="background: #f0fff4; padding: 1rem; border-radius: 10px; border-left: 4px solid #10b981;">
+            <h4 style="margin: 0 0 0.5rem 0; color: #10b981;">
+                <i class="fas fa-info-circle"></i> Informazioni Voti
+            </h4>
+            <th:block th:if="${not #lists.isEmpty(votiSquadre)}">
+                <p style="margin: 0;">
+                    <strong>Totale voti registrati: <span th:text="${#lists.size(votiSquadre)}">0</span></strong>
+                </p>
+                <p style="margin: 0.5rem 0 0 0; font-size: 0.9rem; color: #666;">
+                    Sistema di votazione attivo e funzionante
+                </p>
+            </th:block>
+            <th:block th:if="${#lists.isEmpty(votiSquadre)}">
+                <p style="margin: 0; color: #666;">Nessun voto registrato</p>
+            </th:block>
+        </div>
+    </div>
+</div>
+
+<div id="particles-js" class="particles-container"></div>
+<footer style="text-align: center; margin-top: 20px; font-size: 0.9em; color: #555;">Made with ❤️ by <a href="https://github.com/RMChannel">Cito Roberto</a>     
+   V3.0</footer>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        if (typeof particlesJS !== 'undefined') {
+            particlesJS("particles-js", {
+                particles: {
+                    number: { value: 80, density: { enable: true, value_area: 800 } },
+                    color: { value: "#ffffff" },
+                    shape: { type: "circle" },
+                    opacity: { value: 0.5, random: true },
+                    size: { value: 3, random: true },
+                    line_linked: { enable: true, distance: 150, color: "#ffffff", opacity: 0.4, width: 1 },
+                    move: { enable: true, speed: 2, random: true }
+                },
+                interactivity: {
+                    detect_on: "canvas",
+                    events: {
+                        onhover: { enable: true, mode: "grab" },
+                        onclick: { enable: true, mode: "push" }
+                    },
+                    modes: { grab: { distance: 140, line_linked: { opacity: 1 } }, push: { particles_nb: 4 } }
+                }
+            });
+        }
+
+        // Filtro nome squadra
+        document.getElementById('filterInput').addEventListener('keyup', function () {
+            let filterValue = this.value.toLowerCase();
+            let rows = document.querySelectorAll('#squadreTable tbody tr');
+            rows.forEach(row => {
+                let teamName = row.cells[0].textContent.toLowerCase();
+                row.style.display = teamName.includes(filterValue) ? '' : 'none';
+            });
+        });
+
+        // Ordinamento - aggiornato per gestire colonne dinamiche
+        document.getElementById('sortSelect').addEventListener('change', function () {
+            let rows = Array.from(document.querySelectorAll('#squadreTable tbody tr'));
+            let colIndex;
+
+            if (this.value === 'name') {
+                colIndex = 0;
+            } else if (this.value === 'votes') {
+                colIndex = 4;
+            } else if (this.value === 'somma') {
+                // L'indice della colonna somma è dinamico basato sul numero di giudici
+                let headers = document.querySelectorAll('#squadreTable thead th');
+                colIndex = Array.from(headers).findIndex(header => header.textContent.trim() === 'Media Giudici');
+            }
+
+            if (colIndex !== null && colIndex !== -1) {
+                rows.sort((a, b) => {
+                    let valA = a.cells[colIndex].textContent;
+                    let valB = b.cells[colIndex].textContent;
+                    return isNaN(valA - valB) ? valA.localeCompare(valB) : valB - valA;
+                });
+                rows.forEach(row => document.querySelector('#squadreTable tbody').appendChild(row));
+            }
+        });
+
+        // Filtri per la sezione voti squadre
+        if (document.getElementById('filterVotiInput')) {
+            document.getElementById('filterVotiInput').addEventListener('keyup', function () {
+                filterVotiTable();
+            });
+        }
+
+        if (document.getElementById('filterVotateInput')) {
+            document.getElementById('filterVotateInput').addEventListener('keyup', function () {
+                filterVotiTable();
+            });
+        }
+
+        function filterVotiTable() {
+            let filterVotanti = document.getElementById('filterVotiInput').value.toLowerCase();
+            let filterVotate = document.getElementById('filterVotateInput').value.toLowerCase();
+            let rows = document.querySelectorAll('#votiSquadreTable tbody tr');
+
+            rows.forEach(row => {
+                let squadraVotante = row.cells[0].textContent.toLowerCase();
+                let squadraVotata = row.cells[1].textContent.toLowerCase();
+                let showRow = squadraVotante.includes(filterVotanti) && squadraVotata.includes(filterVotate);
+                row.style.display = showRow ? '' : 'none';
+            });
+        }
+
+        // Funzione per ordinamento tabella voti
+        window.sortVotiTable = function(columnIndex) {
+            let table = document.getElementById('votiSquadreTable');
+            let tbody = table.querySelector('tbody');
+            let rows = Array.from(tbody.querySelectorAll('tr'));
+
+            // Determina la direzione di ordinamento
+            let isAscending = table.getAttribute('data-sort-order') !== 'asc';
+            table.setAttribute('data-sort-order', isAscending ? 'asc' : 'desc');
+
+            // Ordina le righe
+            rows.sort((a, b) => {
+                let textA = a.cells[columnIndex].textContent.trim();
+                let textB = b.cells[columnIndex].textContent.trim();
+
+                if (isAscending) {
+                    return textA.localeCompare(textB);
+                } else {
+                    return textB.localeCompare(textA);
+                }
+            });
+
+            // Riappende le righe ordinate
+            rows.forEach(row => tbody.appendChild(row));
+
+            // Aggiorna le icone di ordinamento
+            let headers = table.querySelectorAll('th i.fas');
+            headers.forEach(icon => {
+                icon.className = 'fas fa-sort';
+            });
+
+            let currentIcon = table.querySelectorAll('th')[columnIndex].querySelector('i.fas');
+            currentIcon.className = isAscending ? 'fas fa-sort-up' : 'fas fa-sort-down';
+        };
+
+        // Funzionalità di aggiornamento automatico
+        let refreshInterval;
+        let isRefreshing = false;
+        const autoRefreshBtn = document.getElementById('autoRefreshBtn');
+        const refreshStatus = document.getElementById('refreshStatus');
+
+        autoRefreshBtn.addEventListener('click', function() {
+            if (isRefreshing) {
+                // Ferma l'aggiornamento automatico
+                clearInterval(refreshInterval);
+                isRefreshing = false;
+                autoRefreshBtn.innerHTML = '<i class="fas fa-sync-alt"></i> Avvia Aggiornamento Automatico';
+                autoRefreshBtn.style.background = 'linear-gradient(to right, #10b981, #059669)';
+                refreshStatus.textContent = 'Aggiornamento automatico disattivato';
+                refreshStatus.style.color = '#666';
+            } else {
+                // Avvia l'aggiornamento automatico ogni 30 secondi
+                refreshInterval = setInterval(function() {
+                    // Effettua una chiamata AJAX per aggiornare i dati
+                    fetch(window.location.href, {
+                        method: 'GET',
+                        headers: {
+                            'Cache-Control': 'no-cache'
+                        }
+                    })
+                    .then(response => response.text())
+                    .then(html => {
+                        // Crea un elemento temporaneo per analizzare il nuovo HTML
+                        const parser = new DOMParser();
+                        const newDoc = parser.parseFromString(html, 'text/html');
+
+                        // Aggiorna la tabella principale
+                        const newMainTable = newDoc.getElementById('squadreTable');
+                        const oldMainTable = document.getElementById('squadreTable');
+                        if (newMainTable && oldMainTable) {
+                            oldMainTable.querySelector('tbody').innerHTML = newMainTable.querySelector('tbody').innerHTML;
+                        }
+
+                        // Aggiorna la tabella dei voti
+                        const newVotesTable = newDoc.getElementById('votiSquadreTable');
+                        const oldVotesTable = document.getElementById('votiSquadreTable');
+                        if (newVotesTable && oldVotesTable) {
+                            oldVotesTable.querySelector('tbody').innerHTML = newVotesTable.querySelector('tbody').innerHTML;
+                        }
+
+                        // Aggiorna le statistiche
+                        const newStats = newDoc.querySelector('.table-container:last-child');
+                        const oldStats = document.querySelector('.table-container:last-child');
+                        if (newStats && oldStats) {
+                            const newStatsContent = newStats.querySelector('div[style*="grid-template-columns"]');
+                            const oldStatsContent = oldStats.querySelector('div[style*="grid-template-columns"]');
+                            if (newStatsContent && oldStatsContent) {
+                                oldStatsContent.innerHTML = newStatsContent.innerHTML;
+                            }
+                        }
+
+                        // Aggiorna la sezione del punto bonus
+                        const newBonusSection = newDoc.querySelector('div[th\\:if="${not #lists.isEmpty(squadre)}"]');
+                        const oldBonusSection = document.querySelector('div[th\\:if="${not #lists.isEmpty(squadre)}"]');
+                        if (newBonusSection && oldBonusSection) {
+                            oldBonusSection.innerHTML = newBonusSection.innerHTML;
+                        }
+
+                        // Aggiorna il timestamp dell'ultimo aggiornamento
+                        const now = new Date();
+                        refreshStatus.innerHTML = 'Ultimo aggiornamento: ' + now.toLocaleTimeString() + ' - Aggiornamento ogni 30s';
+                        refreshStatus.style.color = '#10b981';
+                    })
+                    .catch(error => {
+                        console.error('Errore durante l\'aggiornamento automatico:', error);
+                        refreshStatus.textContent = 'Errore durante l\'aggiornamento';
+                        refreshStatus.style.color = '#ef4444';
+                    });
+                }, 30000); // 30 secondi
+
+                isRefreshing = true;
+                autoRefreshBtn.innerHTML = '<i class="fas fa-stop"></i> Ferma Aggiornamento Automatico';
+                autoRefreshBtn.style.background = 'linear-gradient(to right, #ef4444, #dc2626)';
+                refreshStatus.textContent = 'Aggiornamento automatico attivo - primo aggiornamento tra 30s';
+                refreshStatus.style.color = '#10b981';
+            }
+        });
+    });
+</script>
+</body>
+</html>

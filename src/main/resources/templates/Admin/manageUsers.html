@@ -1,0 +1,463 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Gestione Utenti - Admin</title>
+    <meta name="_csrf" th:content="${_csrf.token}"/>
+    <meta name="_csrf_header" th:content="${_csrf.headerName}"/>
+    <link rel="icon" type="image/ico" th:href="@{/photo/logo.png}">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" th:href="@{/css/wallPaper.css}">
+    <link rel="stylesheet" th:href="@{/css/responsive.css}">
+    <script src="https://cdn.jsdelivr.net/particles.js/2.0.0/particles.min.js"></script>
+    <style>
+        .grid.two-columns {
+            display: grid;
+            grid-template-columns: 1fr 2fr; /* Forms take less space, list takes more */
+            gap: 1.5rem;
+            align-items: start;
+        }
+
+        @media (max-width: 992px) {
+            .grid.two-columns {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .user-list-container {
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 1rem;
+        }
+        
+        th, td {
+            text-align: left;
+            padding: 1rem;
+            border-bottom: 1px solid rgba(0,0,0,0.1);
+        }
+        
+        th {
+            font-weight: 600;
+            color: var(--primary-color);
+        }
+
+        .form-group {
+            margin-bottom: 1.25rem;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+        }
+
+        input[type="text"], select {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid #d1d5db;
+            border-radius: 8px;
+            font-size: 1rem;
+            box-sizing: border-box; /* Fix width issues */
+        }
+        
+        input[type="text"]:focus, select:focus {
+            outline: 2px solid var(--primary-color);
+            border-color: transparent;
+        }
+
+        .error-message {
+            color: #ef4444;
+            font-size: 0.875rem;
+            margin-top: 0.25rem;
+            display: block;
+        }
+
+        .alert {
+            padding: 1rem;
+            border-radius: var(--border-radius);
+            margin-bottom: 1.5rem;
+            font-weight: 500;
+        }
+        
+        .alert-success {
+            background-color: #dcfce7;
+            color: #166534;
+            border: 1px solid #bbf7d0;
+        }
+        
+        .alert-danger {
+            background-color: #fee2e2;
+            color: #991b1b;
+            border: 1px solid #fecaca;
+        }
+
+        .header-actions {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+        
+        .app-header {
+            margin-bottom: 0; /* Override default margin since we use header-actions */
+        }
+    </style>
+</head>
+<body class="admin-home">
+<div id="particles-js" class="particles-container" aria-hidden="true"></div>
+
+<main class="container">
+    <div class="header-actions">
+        <h1 class="page-title">Gestione Utenti</h1>
+        <a th:href="@{/admin}" class="btn secondary">Torna alla Home</a>
+    </div>
+
+    <!-- Feedback Messages -->
+    <div th:if="${AddedUser}" class="alert alert-success">
+        Utente aggiunto con successo! Password generata: <strong th:text="${newPassword}">PASSWORD</strong>
+    </div>
+    <div th:if="${AddedSquadra}" class="alert alert-success">
+        Squadra aggiunta con successo! Password generata: <strong th:text="${newPassword}">PASSWORD</strong>
+    </div>
+    <div th:if="${RemovedSquadra}" class="alert alert-success">
+        Utente rimosso con successo.
+    </div>
+    <div th:if="${ErrorRemoveSquadra}" class="alert alert-danger">
+        Errore: utente non trovato o impossibile rimuovere.
+    </div>
+    <div th:if="${ResetPassword}" class="alert alert-success">
+        Password resettata con successo! Nuova password generata: <strong th:text="${newPassword}">PASSWORD</strong>
+    </div>
+    <div th:if="${ErrorResetPassword}" class="alert alert-danger">
+        Errore: impossibile resettare la password.
+    </div>
+    <div th:if="${RemovedVoto}" class="alert alert-success">
+        Voto rimosso con successo.
+    </div>
+    <div th:if="${ErrorRemoveVoto}" class="alert alert-danger">
+        Errore: impossibile rimuovere il voto.
+    </div>
+
+    <div class="grid two-columns">
+        
+        <!-- Left Column: Forms -->
+        <div class="column-forms">
+            
+            <!-- Add User Form -->
+            <article class="card" style="margin-bottom: 1.5rem;">
+                <header>
+                    <h2>Nuovo Utente</h2>
+                </header>
+                <p>Aggiungi un Amministratore o un Giudice.</p>
+                
+                <form th:action="@{/admin/add-user}" th:object="${addUserForm}" method="post">
+                    <div class="form-group">
+                        <label for="usernameUser">Username</label>
+                        <input type="text" id="usernameUser" th:field="*{username}" placeholder="Inserisci username" />
+                        <span th:if="${#fields.hasErrors('username')}" th:errors="*{username}" class="error-message"></span>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="roleUser">Ruolo</label>
+                        <select id="roleUser" th:field="*{role}">
+                            <option value="GIUDICE">Giudice</option>
+                            <option value="ADMIN">Amministratore</option>
+                        </select>
+                        <span th:if="${#fields.hasErrors('role')}" th:errors="*{role}" class="error-message"></span>
+                    </div>
+                    
+                    <div class="actions">
+                        <button type="submit" class="btn primary" style="width: 100%">Aggiungi Utente</button>
+                    </div>
+                </form>
+            </article>
+
+            <!-- Add Squadra Form -->
+            <article class="card" style="margin-bottom: 1.5rem;">
+                <header>
+                    <h2>Nuova Squadra</h2>
+                </header>
+                <p>Registra una nuova squadra partecipante.</p>
+                
+                <form th:action="@{/admin/add-squadra}" th:object="${addSquadraForm}" method="post">
+                    <div class="form-group">
+                        <label for="usernameSquadra">Username</label>
+                        <input type="text" id="usernameSquadra" th:field="*{username}" placeholder="Username squadra" />
+                        <span th:if="${#fields.hasErrors('username')}" th:errors="*{username}" class="error-message"></span>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="realName">Nome Squadra</label>
+                        <input type="text" id="realName" th:field="*{realName}" placeholder="Es. I Fotografi" />
+                        <span th:if="${#fields.hasErrors('realName')}" th:errors="*{realName}" class="error-message"></span>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="istituto">Istituto</label>
+                        <input type="text" id="istituto" th:field="*{istituto}" placeholder="Es. Liceo Rossi" />
+                        <span th:if="${#fields.hasErrors('istituto')}" th:errors="*{istituto}" class="error-message"></span>
+                    </div>
+                    
+                    <div class="actions">
+                        <button type="submit" class="btn primary" style="width: 100%">Aggiungi Squadra</button>
+                    </div>
+                </form>
+            </article>
+
+            <!-- CSV Import Form -->
+            <article class="card" style="margin-bottom: 1.5rem;">
+                <header>
+                    <h2>Importazione Massiva</h2>
+                </header>
+                <p>Carica un file CSV con le squadre (Username, Nome, Istituto).</p>
+                <div id="csv-error" class="alert alert-danger" style="display: none; margin-bottom: 1rem;">
+                    Errore durante l'importazione. Controlla il formato del file.
+                </div>
+                <form id="csvImportForm">
+                    <div class="form-group">
+                        <label for="csvFile">Seleziona File CSV</label>
+                        <input type="file" id="csvFile" name="file" accept=".csv" required style="width: 100%; padding: 0.5rem; border: 1px solid #d1d5db; border-radius: 8px;" />
+                    </div>
+                    <div class="actions">
+                        <button type="submit" id="btnImport" class="btn primary" style="width: 100%">Importa Squadre</button>
+                    </div>
+                </form>
+            </article>
+
+            <!-- Delete All Squadre Form -->
+            <article class="card" style="border: 1px solid #fecaca; border-top: 4px solid #ef4444; background-color: #fef2f2;">
+                <header>
+                    <h2 style="color: #991b1b;">Zona Pericolosa</h2>
+                </header>
+                <p style="color: #7f1d1d;">Elimina definitivamente tutte le squadre dal sistema. Questa azione è irreversibile.</p>
+                <form th:action="@{/admin/delete-all}" method="post" id="deleteAllForm">
+                    <div class="actions" style="margin-top: 1rem;">
+                        <button type="button" onclick="confirmDeleteAll()" class="btn secondary" style="width: 100%; border-color: #ef4444; color: #ef4444; background-color: white;">
+                            Elimina Tutte le Squadre
+                        </button>
+                    </div>
+                </form>
+            </article>
+        </div>
+
+        <!-- Right Column: List -->
+        <article class="card">
+            <header>
+                <h2>Lista Utenti</h2>
+            </header>
+            <p>Elenco di tutti gli utenti registrati nel sistema.</p>
+            
+            <!-- Filters -->
+            <div style="display: flex; gap: 1rem; margin-bottom: 1rem; flex-wrap: wrap;">
+                <input type="text" id="filterUsername" placeholder="Cerca per username..." style="flex: 1; min-width: 200px; padding: 0.75rem; border: 1px solid #d1d5db; border-radius: 8px;">
+                <select id="filterRole" style="flex: 1; min-width: 200px; padding: 0.75rem; border: 1px solid #d1d5db; border-radius: 8px;">
+                    <option value="">Tutti i ruoli</option>
+                    <option value="SQUADRA">Squadra</option>
+                    <option value="GIUDICE">Giudice</option>
+                    <option value="ADMIN">Amministratore</option>
+                </select>
+            </div>
+            
+            <div class="user-list-container">
+                <table th:if="${not #lists.isEmpty(users)}">
+                    <thead>
+                        <tr>
+                            <th>Username</th>
+                            <th>Ruolo</th>
+                            <th style="text-align: right;">Azioni</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr th:each="u : ${users}">
+                            <td th:text="${u.username}">user1</td>
+                            <td>
+                                <span th:text="${u.role}" 
+                                      th:style="${u.role == 'ADMIN' ? 'color: var(--primary-color); font-weight: bold;' : ''}">Role</span>
+                            </td>
+                            <td style="text-align: right;">
+                                <div style="display: flex; justify-content: flex-end; align-items: center; gap: 0.75rem; flex-wrap: wrap;">
+                                    <form th:action="@{/admin/reset-password}" method="post" 
+                                          onsubmit="return confirm('Sei sicuro di voler resettare la password di questo utente?');"
+                                          style="display: flex; align-items: center; gap: 0.5rem; margin: 0;">
+                                        <input type="hidden" name="username" th:value="${u.username}" />
+                                        <input type="text" name="password" placeholder="Password (vuoto = random)" 
+                                               style="padding: 0.4rem 0.6rem; border: 1px solid #d1d5db; border-radius: 6px; font-size: 0.85rem; width: 180px; box-sizing: border-box;" />
+                                        <button type="submit" class="btn secondary" 
+                                                style="padding: 0.4rem 0.8rem; font-size: 0.9rem; border-color: #f59e0b; color: #f59e0b; white-space: nowrap;"
+                                                aria-label="Reset password utente">
+                                            Reset Password
+                                        </button>
+                                    </form>
+                                    <form th:action="@{/admin/remove-user}" method="post" 
+                                          onsubmit="return confirm('Sei sicuro di voler eliminare questo utente? Questa azione è irreversibile.');"
+                                          style="margin: 0;">
+                                        <input type="hidden" name="username" th:value="${u.username}" />
+                                        <button type="submit" class="btn secondary" 
+                                                style="padding: 0.4rem 0.8rem; font-size: 0.9rem; border-color: #ef4444; color: #ef4444; white-space: nowrap;"
+                                                aria-label="Rimuovi utente">
+                                            Elimina
+                                        </button>
+                                    </form>
+                                    <form th:if="${u.role == 'SQUADRA'}" th:action="@{/admin/remove-voto}" method="post" 
+                                          onsubmit="return confirm('Sei sicuro di voler rimuovere il voto di questa squadra?');"
+                                          style="margin: 0;">
+                                        <input type="hidden" name="username" th:value="${u.username}" />
+                                        <button type="submit" class="btn secondary" 
+                                                style="padding: 0.4rem 0.8rem; font-size: 0.9rem; border-color: #3b82f6; color: #3b82f6; white-space: nowrap;"
+                                                aria-label="Rimuovi voto">
+                                            Rimuovi Voto
+                                        </button>
+                                    </form>
+                                </div>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+                
+                <div th:if="${#lists.isEmpty(users)}" style="text-align: center; padding: 2rem; color: #6b7280;">
+                    Nessun utente presente nel sistema.
+                </div>
+            </div>
+        </article>
+
+    </div>
+</main>
+
+<script th:inline="javascript">
+    document.addEventListener('DOMContentLoaded', function () {
+        if (typeof particlesJS !== 'undefined') {
+            particlesJS("particles-js", {
+                "particles": {
+                    "number": { "value": 60, "density": { "enable": true, "value_area": 800 } },
+                    "color": { "value": "#ffffff" },
+                    "shape": { "type": "circle" },
+                    "opacity": { "value": 0.5, "random": true },
+                    "size": { "value": 3, "random": true },
+                    "line_linked": { "enable": true, "distance": 150, "color": "#ffffff", "opacity": 0.3, "width": 1 },
+                    "move": { "enable": true, "speed": 2 }
+                },
+                "interactivity": {
+                    "detect_on": "canvas",
+                    "events": { "onhover": { "enable": true, "mode": "grab" }, "onclick": { "enable": true, "mode": "push" } },
+                    "modes": { "grab": { "distance": 140, "line_linked": { "opacity": 1 } } }
+                }
+            });
+        }
+
+        const csvForm = document.getElementById('csvImportForm');
+        const csvError = document.getElementById('csv-error');
+        const btnImport = document.getElementById('btnImport');
+
+        if (csvForm) {
+            csvForm.addEventListener('submit', function (e) {
+                e.preventDefault();
+                csvError.style.display = 'none';
+                btnImport.disabled = true;
+                btnImport.innerText = 'Importazione in corso...';
+
+                const formData = new FormData();
+                const fileField = document.querySelector('input[type="file"]');
+                formData.append('file', fileField.files[0]);
+
+                const csrfToken = document.querySelector('meta[name="_csrf"]').getAttribute('content');
+                const csrfHeader = document.querySelector('meta[name="_csrf_header"]').getAttribute('content');
+
+                fetch(/*[[@{/admin/add-squadre}]]*/ '/admin/add-squadre', {
+                    method: 'POST',
+                    headers: {
+                        [csrfHeader]: csrfToken
+                    },
+                    body: formData
+                })
+                .then(response => {
+                    if (response.status === 601) {
+                        throw new Error('Errore: Uno o più campi nel CSV sono vuoti.');
+                    } else if (response.status === 602) {
+                        throw new Error('Errore: Uno degli username nel CSV è già esistente.');
+                    } else if (!response.ok) {
+                        throw new Error('Errore nel caricamento del file');
+                    }
+                    return response.blob();
+                })
+                .then(blob => {
+                    // Create a link to download the file
+                    const url = window.URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.style.display = 'none';
+                    a.href = url;
+                    a.download = 'squadre.csv';
+                    document.body.appendChild(a);
+                    a.click();
+                    window.URL.revokeObjectURL(url);
+                    
+                    // Reload the page to reflect changes
+                    window.location.reload();
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    csvError.innerText = error.message;
+                    csvError.style.display = 'block';
+                    btnImport.disabled = false;
+                    btnImport.innerText = 'Importa Squadre';
+                });
+            });
+        }
+
+        // Table Filtering logic
+        const filterUsername = document.getElementById('filterUsername');
+        const filterRole = document.getElementById('filterRole');
+        const userTableBody = document.querySelector('.user-list-container table tbody');
+
+        if(userTableBody && filterUsername && filterRole) {
+            function filterTable() {
+                const usernameValue = filterUsername.value.toLowerCase();
+                const roleValue = filterRole.value.toLowerCase();
+                const rows = userTableBody.getElementsByTagName('tr');
+
+                for (let i = 0; i < rows.length; i++) {
+                    const row = rows[i];
+                    const usernameCell = row.getElementsByTagName('td')[0];
+                    const roleCell = row.getElementsByTagName('td')[1];
+
+                    if (usernameCell && roleCell) {
+                        const username = usernameCell.textContent || usernameCell.innerText;
+                        const role = roleCell.textContent || roleCell.innerText;
+
+                        const matchesUsername = username.toLowerCase().includes(usernameValue);
+                        const matchesRole = roleValue === "" || role.toLowerCase().includes(roleValue.toLowerCase());
+
+                        if (matchesUsername && matchesRole) {
+                            row.style.display = "";
+                        } else {
+                            row.style.display = "none";
+                        }
+                    }
+                }
+            }
+
+            filterUsername.addEventListener('input', filterTable);
+            filterRole.addEventListener('change', filterTable);
+        }
+
+        window.confirmDeleteAll = function() {
+            if (confirm("ATTENZIONE: Sei sicuro di voler eliminare TUTTE le squadre dal sistema?")) {
+                if (confirm("Questa azione è IRREVERSIBILE. Tutti i voti e i dati delle squadre andranno persi.\n\nVuoi davvero continuare?")) {
+                    if (confirm("ULTIMO AVVISO: Confermi l'eliminazione definitiva di tutte le squadre? Le squadre non potranno più accedere al sistema.")) {
+                        document.getElementById('deleteAllForm').submit();
+                    }
+                }
+            }
+        };
+    });
+</script>
+<footer style="text-align: center; margin-top: 20px; font-size: 0.9em; color: #555;">Made with ❤️ by <a href="https://github.com/RMChannel">Cito Roberto</a>     
+   V3.0</footer>
+
+</body>
+</html>

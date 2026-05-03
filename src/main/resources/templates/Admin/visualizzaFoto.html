@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="it" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <link rel="icon" type="image/ico" th:href="@{/photo/logo.png}">
+    <title>Visualizza Foto</title>
+    <script src="https://cdn.jsdelivr.net/particles.js/2.0.0/particles.min.js"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        body {
+            margin: 0;
+            font-family: 'Segoe UI', sans-serif;
+            background: linear-gradient(to bottom right, #3b82f6, #9333ea);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+        }
+
+        .photo-container {
+            background: #f9f9f9;
+            border-radius: 20px;
+            padding: 2rem;
+            max-width: 90%;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+            text-align: center;
+        }
+
+        .photo-container img {
+            max-width: 100%;
+            height: auto;
+            border-radius: 15px;
+            margin-bottom: 1.5rem;
+        }
+
+        .btn-back {
+            background: linear-gradient(to right, #06b6d4, #6366f1);
+            border: none;
+            color: white;
+            padding: 0.75rem 1.5rem;
+            border-radius: 20px;
+            cursor: pointer;
+            transition: background 0.3s ease;
+            text-decoration: none;
+            font-size: 1rem;
+        }
+
+        .btn-back:hover {
+            background: linear-gradient(to right, #0891b2, #4f46e5);
+        }
+
+        .btn-remove {
+            background: linear-gradient(to right, #ef4444, #b91c1c);
+            border: none;
+            color: white;
+            padding: 0.75rem 1.5rem;
+            border-radius: 20px;
+            cursor: pointer;
+            transition: background 0.3s ease;
+            text-decoration: none;
+            font-size: 1rem;
+            margin-left: 10px;
+            font-family: inherit;
+        }
+
+        .btn-remove:hover {
+            background: linear-gradient(to right, #dc2626, #991b1b);
+        }
+
+        .particles-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            overflow: hidden;
+            background-color: #4cc9f0;
+        }
+    </style>
+</head>
+<body>
+
+<div class="photo-container">
+    <h2>Foto Caricata da squadra <i th:text="${nome}"></i></h2>
+    <img th:src="${path}" alt="Foto caricata">
+    <br>
+    <a href="javascript:history.back()" class="btn-back"><i class="fas fa-arrow-left"></i> Torna Indietro</a>
+    <a th:href="${path}" download class="btn-back" style="margin-left: 10px;"><i class="fas fa-download"></i> Scarica Foto</a>
+    <form th:action="@{/admin/rimuovi-foto}" method="post" id="removeFotoForm" style="display:inline;">
+        <input type="hidden" name="squadra" th:value="${squadra}" />
+        <button type="button" class="btn-remove" onclick="confirmRemove()">
+            <i class="fas fa-trash"></i> Rimuovi Foto
+        </button>
+    </form>
+</div>
+
+<div id="particles-js" class="particles-container"></div>
+<footer style="text-align: center; margin-top: 20px; font-size: 0.9em; color: #555;">Made with ❤️ by <a href="https://github.com/RMChannel">Cito Roberto</a>     
+   V3.0</footer>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        if (typeof particlesJS !== 'undefined') {
+            particlesJS("particles-js", {
+                particles: {
+                    number: { value: 80, density: { enable: true, value_area: 800 } },
+                    color: { value: "#ffffff" },
+                    shape: { type: "circle" },
+                    opacity: { value: 0.5, random: true },
+                    size: { value: 3, random: true },
+                    line_linked: {
+                        enable: true,
+                        distance: 150,
+                        color: "#ffffff",
+                        opacity: 0.4,
+                        width: 1
+                    },
+                    move: {
+                        enable: true,
+                        speed: 2,
+                        direction: "none",
+                        random: true,
+                        straight: false,
+                        out_mode: "out",
+                        bounce: false
+                    }
+                },
+                interactivity: {
+                    detect_on: "canvas",
+                    events: {
+                        onhover: { enable: true, mode: "grab" },
+                        onclick: { enable: true, mode: "push" }
+                    },
+                    modes: {
+                        grab: { distance: 140, line_linked: { opacity: 1 } },
+                        push: { particles_nb: 4 }
+                    }
+                }
+            });
+        }
+    });
+
+    function confirmRemove() {
+        if (confirm("Sei sicuro di voler rimuovere questa foto?")) {
+            if (confirm("L'azione è irreversibile. Confermi definitivamente di volerla eliminare?")) {
+                document.getElementById('removeFotoForm').submit();
+            }
+        }
+    }
+</script>
+</body>
+</html>

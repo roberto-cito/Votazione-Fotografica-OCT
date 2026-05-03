@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <link rel="icon" type="image/ico" th:href="@{/photo/logo.png}">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>Votazione Fotografia - Giudice</title>
+    <script src="https://cdn.jsdelivr.net/particles.js/2.0.0/particles.min.js"></script>
+    <link rel="stylesheet" th:href="@{/css/wallPaper.css}">
+    <link rel="stylesheet" th:href="@{/css/responsive.css}">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        body {
+            margin: 0;
+            font-family: 'Segoe UI', sans-serif;
+            background: linear-gradient(to bottom right, #3b82f6, #9333ea);
+            min-height: 100vh;
+            width: 100%;
+            /* RIMOSSO: display: flex; justify-content: center; align-items: center; flex-direction: column; */
+        }
+
+        .main-content {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            width: 100%;
+        }
+
+        .vote-container {
+            background: #f9f9f9;
+            border-radius: 20px;
+            padding: 2rem;
+            max-width: 1200px;
+            width: 90%;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .vote-container h1 {
+            font-weight: 700;
+            margin-bottom: 1.5rem;
+        }
+
+        .photo-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 20px;
+            margin-top: 2rem;
+        }
+
+        .photo-link {
+            text-decoration: none;
+            color: inherit;
+        }
+
+        .photo-card {
+            background: white;
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .photo-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+        }
+
+        .photo-img {
+            width: 100%;
+            height: 250px;
+            object-fit: cover;
+        }
+
+        .photo-info {
+            padding: 1rem;
+        }
+
+        .photo-title {
+            font-size: 1.2rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+
+        .photo-meta {
+            font-size: 0.9rem;
+            color: #666;
+        }
+
+        .particles-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            overflow: hidden;
+            background-color: #4cc9f0;
+        }
+
+        .btn-submit {
+            background: linear-gradient(to right, #06b6d4, #6366f1);
+            border: none;
+            color: white;
+            font-size: 1rem;
+            padding: 0.75rem 1.5rem;
+            border-radius: 30px;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+            transition: background 0.3s ease;
+            text-decoration: none;
+        }
+
+        .btn-submit:hover {
+            background: linear-gradient(to right, #0891b2, #4f46e5);
+        }
+
+        .history-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 1rem;
+        }
+
+        .history-table th, .history-table td {
+            border: 1px solid #ccc;
+            padding: 0.75rem;
+            text-align: center;
+        }
+
+        .history-table th {
+            background-color: #3b82f6;
+            color: white;
+        }
+    </style>
+</head>
+<body>
+<div class="main-content">
+    <div class="vote-container">
+        <h1>Vota le Foto</h1>
+        <p>Giudice: <span th:text="${giudiceNome}">Nome Giudice</span></p>
+        <div th:if="${param.votoCaricato}" style="color: green; font-weight: bold; margin-bottom: 1rem;">Voto caricato con successo</div>
+        <div class="photo-grid">
+            <a th:each="squadra : ${squadre}" th:href="@{/votafoto(squadra=${squadra.squadra})}" class="photo-link">
+                <div class="photo-card">
+                    <img th:if="${paths.get(squadra.squadra)}" th:src="${paths.get(squadra.squadra)}" alt="Foto" class="photo-img">
+                    <div class="photo-info">
+                        <div class="photo-title" th:text="${squadra.realName}">Nome Squadra</div>
+                        <div class="photo-meta">
+                            Istituto: <span th:text="${squadra.istituto}">Istituto</span>
+                        </div>
+                    </div>
+                </div>
+            </a>
+        </div>
+
+        <div style="margin-top: 2rem;">
+<form th:action="@{/logout}" method="post" style="margin: 0; padding: 0; display: inline-block;">
+                <button type="submit" class="btn-submit" style="font-family: inherit;">
+                    <i class="fas fa-arrow-left"></i> Torna alla Home
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Cronologia voti -->
+    <div class="vote-container">
+        <h2>Cronologia Voti</h2>
+        <table class="history-table">
+            <tr>
+                <th>Squadra</th>
+                <th>Punteggio</th>
+            </tr>
+            <tr th:if="${#lists.isEmpty(voti)}">
+                <td colspan="2">Nessun voto registrato</td>
+            </tr>
+            <tr th:each="voto : ${voti}">
+                <td th:text="${voto.squadra}"></td>
+                <td th:text="${voto.punteggio}"></td>
+            </tr>
+        </table>
+    </div>
+</div>
+
+<div id="particles-js" class="particles-container"></div>
+<footer style="text-align: center; margin-top: 20px; font-size: 0.9em; color: #555;">Made with ❤️ by <a href="https://github.com/RMChannel">Cito Roberto</a>     
+   V3.0</footer>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        if (typeof particlesJS !== 'undefined') {
+            particlesJS("particles-js", {
+                particles: {
+                    number: { value: 80, density: { enable: true, value_area: 800 } },
+                    color: { value: "#ffffff" },
+                    shape: { type: "circle" },
+                    opacity: { value: 0.5, random: true },
+                    size: { value: 3, random: true },
+                    line_linked: {
+                        enable: true,
+                        distance: 150,
+                        color: "#ffffff",
+                        opacity: 0.4,
+                        width: 1
+                    },
+                    move: {
+                        enable: true,
+                        speed: 2,
+                        direction: "none",
+                        random: true,
+                        straight: false,
+                        out_mode: "out",
+                        bounce: false
+                    }
+                },
+                interactivity: {
+                    detect_on: "canvas",
+                    events: {
+                        onhover: { enable: true, mode: "grab" },
+                        onclick: { enable: true, mode: "push" }
+                    },
+                    modes: {
+                        grab: { distance: 140, line_linked: { opacity: 1 } },
+                        push: { particles_nb: 4 }
+                    }
+                }
+            });
+        }
+    });
+</script>
+</body>
+</html>
