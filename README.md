@@ -43,7 +43,13 @@ Durante i giorni delle finali, le squadre partecipanti sono chiamate a svolgere 
 
 L'applicazione funge da hub centrale per:
 1. **Raccolta Materiale:** Le squadre accedono con le proprie credenziali per effettuare l'upload della fotografia in modo sicuro e tracciato.
+   
+   ![Dashboard Upload](images/uploadfoto.png)
+
 2. **Esposizione:** Il sistema genera automaticamente una galleria in cui è possibile visionare le foto ammesse.
+   
+   ![Galleria](images/votefoto.png)
+
 3. **Votazione Equa:** Ogni squadra ha la responsabilità di esprimere la propria preferenza, garantendo uno spoglio automatico e la generazione della classifica in tempo reale.
 
 ---
@@ -60,16 +66,38 @@ Per assicurare che la gara sia completamente equa e priva di favoritismi, il sis
 
 L'applicazione è progettata con un robusto sistema di autenticazione e autorizzazione (gestito da Spring Security) che divide l'accesso in base ai ruoli.
 
+![Pagina di Login](images/1.png)
+
 **1. Ruolo Utente (Squadre / Studenti):**
 *   Dashboard dedicata al caricamento della foto (con validazione del formato e del peso).
-*   Sezione galleria in cui sono esposte in forma anonima o palese le foto delle altre squadre (escluse quelle del proprio istituto).
-*   Interfaccia di votazione in cui possono esprimere in maniera definita le proprie preferenze.
+    
+    ![Dashboard Upload](images/uploadfoto.png)
+
+*   Sezione galleria e votazione in cui possono esprimere in maniera definita le proprie preferenze.
+    
+    ![Votazione](images/votefoto.png)
+
 *   Impossibilità di modificare il voto una volta confermato, se non secondo le policy configurate.
 
 **2. Ruolo Amministratore (Staff OCT):**
 *   **Pannello di Controllo:** Visione completa di tutte le squadre registrate, dei loro caricamenti e dello stato dei voti.
+    
+    ![Pannello Admin](images/admin1.png)
+
 *   **Gestione Fase Votazioni:** Gli admin possono aprire o chiudere le sessioni di upload e di voto con un semplice flag, modificando in tempo reale lo stato dell'app per tutti gli utenti connessi.
+    
+    ![Gestione Utenti](images/utenti.png)
+    ![Stato Bloccato](images/bloccato.png)
+
+*   **Gestione Voti Giudici:** Pannello per la supervisione dei voti espressi dai giudici (se previsto dalla fase).
+    
+    ![Gestione Giudici](images/giudici.png)
+
 *   **Classifica Real-Time:** Accesso a una leaderboard in tempo reale che calcola il punteggio basato sui voti ricevuti da ciascuna foto.
+    
+    ![Classifica](images/classifica.png)
+    ![Classifica Alternativa](images/classifica2.png)
+
 *   **Export Dati:** Possibilità di esportare con un clic l'intera classifica in formato **CSV**, fondamentale per stilare i risultati finali dell'evento da parte della giuria o della direzione.
 
 ---
